@@ -1,2 +1,5 @@
-# opengl-debugging
-Example code for OpenGL debugging practice
+# OpenGL Debugging
+
+## Overview
+
+This project is example code for OpenGL debugging practice.
