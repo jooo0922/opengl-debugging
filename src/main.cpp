@@ -6,6 +6,8 @@
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
 
+#include <shader/shader.hpp>
+
 #include <iostream>
 
 /** 콜백함수 전방 선언 */
@@ -43,6 +45,21 @@ int main()
 
   // GLFW 마우스 커서 입력 모드 설정
   glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+
+  // GLAD 를 사용하여 OpenGL 표준 API 호출 시 사용할 현재 그래픽 드라이버에 구현된 함수 포인터 런타임 로드
+  if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress))
+  {
+    // 함수 포인터 로드 실패
+    std::cout << "Failed to initialized GLAD" << std::endl;
+    return -1;
+  }
+
+  // OpenGL 전역 상태 설정
+  glEnable(GL_DEPTH_TEST);
+  glEnable(GL_CULL_FACE);
+
+  // Shader 객체 생성
+  Shader shader("resources/shaders/debugging.vs", "resources/shaders/debugging.fs");
 
   return 0;
 }
