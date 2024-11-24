@@ -150,6 +150,11 @@ int main()
   }
   stbi_image_free(data);
 
+  /** projection matrix 계산 및 쉐이더 전송 */
+  glm::mat4 projection = glm::perspective(glm::radians(45.0f), (float)SCR_WIDTH / (float)SCR_HEIGHT, 0.1f, 10.0f);
+  shader.setMat4("projection", projection);
+  shader.setInt("tex", 0);
+
   return 0;
 }
 
