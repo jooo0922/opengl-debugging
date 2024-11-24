@@ -61,6 +61,72 @@ int main()
   // Shader 객체 생성
   Shader shader("resources/shaders/debugging.vs", "resources/shaders/debugging.fs");
 
+  /** cube VAO, VBO 설정 */
+  unsigned int cubeVAO, cubeVBO;
+  float vertices[] = {
+      // back face
+      -0.5f, -0.5f, -0.5f, 0.0f, 0.0f, // bottom-left
+      0.5f, 0.5f, -0.5f, 1.0f, 1.0f,   // top-right
+      0.5f, -0.5f, -0.5f, 1.0f, 0.0f,  // bottom-right
+      0.5f, 0.5f, -0.5f, 1.0f, 1.0f,   // top-right
+      -0.5f, -0.5f, -0.5f, 0.0f, 0.0f, // bottom-left
+      -0.5f, 0.5f, -0.5f, 0.0f, 1.0f,  // top-left
+      // front face
+      -0.5f, -0.5f, 0.5f, 0.0f, 0.0f, // bottom-left
+      0.5f, -0.5f, 0.5f, 1.0f, 0.0f,  // bottom-right
+      0.5f, 0.5f, 0.5f, 1.0f, 1.0f,   // top-right
+      0.5f, 0.5f, 0.5f, 1.0f, 1.0f,   // top-right
+      -0.5f, 0.5f, 0.5f, 0.0f, 1.0f,  // top-left
+      -0.5f, -0.5f, 0.5f, 0.0f, 0.0f, // bottom-left
+      // left face
+      -0.5f, 0.5f, 0.5f, -1.0f, 0.0f,   // top-right
+      -0.5f, 0.5f, -0.5f, -1.0f, 1.0f,  // top-left
+      -0.5f, -0.5f, -0.5f, -0.0f, 1.0f, // bottom-left
+      -0.5f, -0.5f, -0.5f, -0.0f, 1.0f, // bottom-left
+      -0.5f, -0.5f, 0.5f, -0.0f, 0.0f,  // bottom-right
+      -0.5f, 0.5f, 0.5f, -1.0f, 0.0f,   // top-right
+      // right face
+      0.5f, 0.5f, 0.5f, 1.0f, 0.0f,   // top-left
+      0.5f, -0.5f, -0.5f, 0.0f, 1.0f, // bottom-right
+      0.5f, 0.5f, -0.5f, 1.0f, 1.0f,  // top-right
+      0.5f, -0.5f, -0.5f, 0.0f, 1.0f, // bottom-right
+      0.5f, 0.5f, 0.5f, 1.0f, 0.0f,   // top-left
+      0.5f, -0.5f, 0.5f, 0.0f, 0.0f,  // bottom-left
+      // bottom face
+      -0.5f, -0.5f, -0.5f, 0.0f, 1.0f, // top-right
+      0.5f, -0.5f, -0.5f, 1.0f, 1.0f,  // top-left
+      0.5f, -0.5f, 0.5f, 1.0f, 0.0f,   // bottom-left
+      0.5f, -0.5f, 0.5f, 1.0f, 0.0f,   // bottom-left
+      -0.5f, -0.5f, 0.5f, 0.0f, 0.0f,  // bottom-right
+      -0.5f, -0.5f, -0.5f, 0.0f, 1.0f, // top-right
+      // top face
+      -0.5f, 0.5f, -0.5f, 0.0f, 1.0f, // top-left
+      0.5f, 0.5f, 0.5f, 1.0f, 0.0f,   // bottom-right
+      0.5f, 0.5f, -0.5f, 1.0f, 1.0f,  // top-right
+      0.5f, 0.5f, 0.5f, 1.0f, 0.0f,   // bottom-right
+      -0.5f, 0.5f, -0.5f, 0.0f, 1.0f, // top-left
+      -0.5f, 0.5f, 0.5f, 0.0f, 0.0f   // bottom-left
+  };
+
+  // VAO, VBO 객체 생성
+  glGenVertexArrays(1, &cubeVAO);
+  glGenBuffers(1, &cubeVBO);
+
+  // VBO 객체에 메모리 할당 및 데이터 쓰기
+  glBindBuffer(GL_ARRAY_BUFFER, cubeVBO);
+  glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
+
+  // VAO 객체 설정 및 정점 데이터 해석 방식 정의
+  glBindVertexArray(cubeVAO);
+  glEnableVertexAttribArray(0);
+  glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void *)0);
+  glEnableVertexAttribArray(1);
+  glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void *)(3 * sizeof(float)));
+
+  // VAO 객체 설정 완료 후 바인딩 해제
+  glBindBuffer(GL_ARRAY_BUFFER, 0);
+  glBindVertexArray(0);
+
   return 0;
 }
 
