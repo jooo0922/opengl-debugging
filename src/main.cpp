@@ -16,9 +16,33 @@ void framebuffer_size_callback(GLFWwindow *window, int width, int height);
 // GLFW 윈도우 키 입력 콜백함수
 void processInput(GLFWwindow *window);
 
+/** 스크린 해상도 선언 */
+const unsigned int SCR_WIDTH = 800;
+const unsigned int SCR_HEIGHT = 600;
+
 int main()
 {
-  std::cout << "Hello, World" << std::endl;
+  // GLFW 초기화 및 윈도우 설정 구성
+  glfwInit();
+  glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
+  glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
+  glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
+
+  // GLFW 윈도우 생성 및 현재 OpenGL 컨텍스트로 등록
+  GLFWwindow *window = glfwCreateWindow(SCR_WIDTH, SCR_HEIGHT, "OpenGL Debugging", nullptr, nullptr);
+  glfwMakeContextCurrent(window);
+  if (window == NULL)
+  {
+    std::cout << "Failed to create GLFW window" << std::endl;
+    glfwTerminate();
+    return -1;
+  }
+
+  // GLFW 윈도우 resizing 콜백함수 등록
+  glfwSetFramebufferSizeCallback(window, framebuffer_size_callback);
+
+  // GLFW 마우스 커서 입력 모드 설정
+  glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
 
   return 0;
 }
