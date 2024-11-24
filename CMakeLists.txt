@@ -52,6 +52,9 @@ add_executable(${TARGET_NAME}
   # glad
   ${SRC_DIR}/glad.c
 
+  # current src
+  ${SRC_DIR}/shader/shader.cpp
+
   # current main
   ${SRC_DIR}/main.cpp
 )
