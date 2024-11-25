@@ -75,6 +75,115 @@ GLenum glCheckError_(const char *file, int line)
 }
 #define glCheckError() glCheckError_(__FILE__, __LINE__)
 
+/**
+ * OpenGL Debug Output Context 에 전달할 콜백함수 정의
+ *
+ * Debug Output Context 는 glGetError() 보다 더 많은 에러 정보들을
+ * 콜백 함수의 인자들로부터 전달받아서 개발자의 입맛에 맞게 가공해서 출력할 수 있음.
+ *
+ * 이때, 해당 콜백함수를 호출하는 주체는 OpenGL 그래픽 드라이버이기 때문에,
+ * 그래픽 드라이버가 호출하는 함수를 선언할 때에는 항상 '호출 규약' 을 명시해야 함.
+ *
+ * '호출 규약' 이란,
+ * 함수가 호출될 때 매개변수를 어떻게 전달하고 반환값을 어떻게 처리하는지에 대한
+ * 규칙을 정의하는 개념으로,
+ *
+ * 아래의 APIENTRY 매크로는 OpenGL 이 어떤 플랫폼에서 컴파일되던지
+ * 콜백 함수의 호출 규약을 동일하게 유지하기 위해서 선언한 것이라고 보면 됨.
+ * 실제로 Windows 에서 해당 매크로는 __stdcall(Windows API 에서 널리 사용되는 표준 호출 규약)
+ * 으로 컴파일됨.
+ */
+void APIENTRY glDebugOutput(GLenum source,
+                            GLenum type,
+                            unsigned int id,
+                            GLenum severity,
+                            GLsizei length,
+                            const char *message,
+                            const void *userParam)
+{
+  // 상대적으로 덜 중요한 에러 코드들(ex> 131185 : '버퍼 생성 성공'을 의미)은 무시
+  if (id == 131169 || id == 131185 || id == 131218 || id == 131204)
+    return;
+
+  std::cout << "---------------" << std::endl;
+  std::cout << "Debug message (" << id << "): " << message << std::endl;
+
+  // 에러 발생 근원지 출력
+  switch (source)
+  {
+  case GL_DEBUG_SOURCE_API:
+    std::cout << "Source: API";
+    break;
+  case GL_DEBUG_SOURCE_WINDOW_SYSTEM:
+    std::cout << "Source: Window System";
+    break;
+  case GL_DEBUG_SOURCE_SHADER_COMPILER:
+    std::cout << "Source: Shader Compiler";
+    break;
+  case GL_DEBUG_SOURCE_THIRD_PARTY:
+    std::cout << "Source: Third Party";
+    break;
+  case GL_DEBUG_SOURCE_APPLICATION:
+    std::cout << "Source: Application";
+    break;
+  case GL_DEBUG_SOURCE_OTHER:
+    std::cout << "Source: Other";
+    break;
+  }
+  std::cout << std::endl;
+
+  // 에러 타입 출력
+  switch (type)
+  {
+  case GL_DEBUG_TYPE_ERROR:
+    std::cout << "Type: Error";
+    break;
+  case GL_DEBUG_TYPE_DEPRECATED_BEHAVIOR:
+    std::cout << "Type: Deprecated Behaviour";
+    break;
+  case GL_DEBUG_TYPE_UNDEFINED_BEHAVIOR:
+    std::cout << "Type: Undefined Behaviour";
+    break;
+  case GL_DEBUG_TYPE_PORTABILITY:
+    std::cout << "Type: Portability";
+    break;
+  case GL_DEBUG_TYPE_PERFORMANCE:
+    std::cout << "Type: Performance";
+    break;
+  case GL_DEBUG_TYPE_MARKER:
+    std::cout << "Type: Marker";
+    break;
+  case GL_DEBUG_TYPE_PUSH_GROUP:
+    std::cout << "Type: Push Group";
+    break;
+  case GL_DEBUG_TYPE_POP_GROUP:
+    std::cout << "Type: Pop Group";
+    break;
+  case GL_DEBUG_TYPE_OTHER:
+    std::cout << "Type: Other";
+    break;
+  }
+  std::cout << std::endl;
+
+  // 에러 심각도 출력
+  switch (severity)
+  {
+  case GL_DEBUG_SEVERITY_HIGH:
+    std::cout << "Severity: high";
+    break;
+  case GL_DEBUG_SEVERITY_MEDIUM:
+    std::cout << "Severity: medium";
+    break;
+  case GL_DEBUG_SEVERITY_LOW:
+    std::cout << "Severity: low";
+    break;
+  case GL_DEBUG_SEVERITY_NOTIFICATION:
+    std::cout << "Severity: notification";
+    break;
+  }
+  std::cout << std::endl;
+}
+
 int main()
 {
   // GLFW 초기화 및 윈도우 설정 구성
