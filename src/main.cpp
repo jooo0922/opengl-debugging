@@ -108,7 +108,7 @@ void APIENTRY glDebugOutput(GLenum source,
   std::cout << "---------------" << std::endl;
   std::cout << "Debug message (" << id << "): " << message << std::endl;
 
-  // 에러 발생 근원지 출력
+  // 에러 발생 출처 출력
   switch (source)
   {
   case GL_DEBUG_SOURCE_API:
@@ -192,6 +192,9 @@ int main()
   glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
   glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 
+  // debug output context 사용 시, GLFW 같은 windowing system 에 debug context 를 사용할 것임을 요청해야 함.
+  glfwWindowHint(GLFW_OPENGL_DEBUG_CONTEXT, true);
+
 // 현재 운영체제가 macos 일 경우, 미래 버전의 OpenGL 을 사용해서 GLFW 창을 생성하여 버전 호환성 이슈 해결
 #ifdef __APPLE__
   glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
@@ -219,6 +222,24 @@ int main()
     // 함수 포인터 로드 실패
     std::cout << "Failed to initialized GLAD" << std::endl;
     return -1;
+  }
+
+  // debug output context 가 성공적으로 초기화 되었는지 query 하기
+  int flags;
+  glGetIntegerv(GL_CONTEXT_FLAGS, &flags);
+  if (flags & GL_CONTEXT_FLAG_DEBUG_BIT)
+  {
+    // debug output context 가 성공적으로 초기화 되었다면, GL_DEBUG_OUTPUT 을 활성화함.
+    glEnable(GL_DEBUG_OUTPUT);
+
+    // debug output context 에 등록한 콜백함수를 '동기적 방식'으로 호출 (하단 필기 참고)
+    glEnable(GL_DEBUG_OUTPUT_SYNCHRONOUS);
+
+    // debug output context 에 콜백함수 등록
+    glDebugMessageCallback(glDebugOutput, nullptr);
+
+    // 받고 싶은 debug output 만 필터링할 수 있는 API -> 아래와 같이 설정하면 별도로 필터링하지 않겠다는 의미.
+    glDebugMessageControl(GL_DONT_CARE, GL_DONT_CARE, GL_DONT_CARE, 0, nullptr, GL_TRUE);
   }
 
   // OpenGL 전역 상태 설정
@@ -377,3 +398,25 @@ void framebuffer_size_callback(GLFWwindow *window, int width, int height)
 {
   glViewport(0, 0, width, height);
 }
+
+/**
+ * glEnable(GL_DEBUG_OUTPUT_SYNCHRONOUS)
+ *
+ *
+ * debug output context 에 등록하는 콜백함수를 '동기적으로' 호출하도록 설정함.
+ * 즉, 에러가 발생하는 순간마다 즉시 콜백함수를 호출함.
+ *
+ * 반대로 '비동기(asynchronous)' 방식으로 디버깅 출력 시,
+ * 에러가 발생할 때마다 디버그 메시지를 버퍼에 저장해두었다가,
+ * '나중에' 한꺼번에 콜백함수를 호출함.
+ *
+ * 이렇게 했을 때의 차이점은,
+ * '동기적 호출' 은 에러가 발생할 때마다 그때그때 콜백함수를 호출함으로써
+ * 에러 발생 시점을 정확하게 파악할 수 있다는 장점이 있으나, 이 콜백함수가 호출되는 시점마다
+ * 디버깅 메시지가 처리될 때까지 OpenGL 이 기다리게 되어 성능 저하가 발생할 수 있음.
+ *
+ * 반대로, '비동기적 호출' 은
+ * OpenGL 커맨드를 우선적으로 실행하고, 에러 메시지를 일정 시점에
+ * '일괄적으로' 호출하기 때문에, OpenGL 실행 흐름을 방해하지 않아 퍼포먼스 측면에서 유리함.
+ * 그러나, 에러 발생 시점과 메시지 호출 시점에 차이가 생겨 정확한 디버깅이 어려울 수 있음.
+ */
