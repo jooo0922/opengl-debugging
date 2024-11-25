@@ -323,8 +323,8 @@ int main()
   unsigned char *data = stbi_load("resources/textures/wood.png", &width, &height, &nrComponents, 0);
   if (data)
   {
-    glTexImage2D(GL_FRAMEBUFFER, 0, nrComponents, width, height, 0, nrComponents, GL_UNSIGNED_BYTE, data); // error version
-    // glTexImage2D(GL_TEXTURE_2D, 0, nrComponents, width, height, 0, nrComponents, GL_UNSIGNED_BYTE, data);
+    // glTexImage2D(GL_FRAMEBUFFER, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, data); // error version
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, data);
     glGenerateMipmap(GL_TEXTURE_2D);
 
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
@@ -340,6 +340,7 @@ int main()
 
   /** projection matrix 계산 및 쉐이더 전송 */
   glm::mat4 projection = glm::perspective(glm::radians(45.0f), (float)SCR_WIDTH / (float)SCR_HEIGHT, 0.1f, 10.0f);
+  shader.use();
   shader.setMat4("projection", projection);
   shader.setInt("tex", 0);
 
@@ -361,6 +362,7 @@ int main()
     glm::mat4 model = glm::mat4(1.0f);
     model = glm::translate(model, glm::vec3(0.0f, 0.0f, -2.5f));
     model = glm::rotate(model, glm::radians(angle), glm::vec3(1.0f, 1.0f, 1.0f));
+    shader.setMat4("model", model);
 
     // draw call
     glBindTexture(GL_TEXTURE_2D, texture);
