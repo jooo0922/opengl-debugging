@@ -11,6 +11,7 @@
 #include <shader/shader.hpp>
 
 #include <iostream>
+#include <string>
 
 /** 콜백함수 전방 선언 */
 
@@ -23,6 +24,56 @@ void processInput(GLFWwindow *window);
 /** 스크린 해상도 선언 */
 const unsigned int SCR_WIDTH = 800;
 const unsigned int SCR_HEIGHT = 600;
+
+/**
+ * glGetError() 를 wrapping 하여 에러를 출력하는 함수를 매크로 전처리기로 정의
+ *
+ * 참고로, __FILE__와 __LINE__ 는 C++ 에 정의된 Predefined Macro 라고 보면 됨.
+ * 컴파일러가 해당 매크로들을 각각 '현재 소스 파일 경로'와 '소스 파일 내에서 현재 매크로가 사용된 라인 번호' 로 치환함.
+ *
+ * 즉, 에러가 발생한 소스 파일과 라인 번호를 출력하기 위해 전달하는 파라미터
+ */
+GLenum glCheckError_(const char *file, int line)
+{
+  /**
+   * X11 같은 분산형 시스템에서는 동시에 여러 error flags 가 설정되므로,
+   * 모든 error flags 를 확인 및 초기화하려면, GL_NO_ERROR 가 반환될 때까지
+   * loop 를 돌려서 초기화해야 함.
+   */
+  GLenum errorCode;
+  while ((errorCode = glGetError() != GL_NO_ERROR))
+  {
+    // 숫자로 반환되는 error code 를 문자열로 변환하여 출력
+    std::string error;
+    switch (errorCode)
+    {
+    case GL_INVALID_ENUM:
+      error = "INVALID_ENUM";
+      break;
+    case GL_INVALID_VALUE:
+      error = "INVALID_VALUE";
+      break;
+    case GL_INVALID_OPERATION:
+      error = "INVALID_OPERATION";
+      break;
+    case GL_STACK_OVERFLOW:
+      error = "STACK_OVERFLOW";
+      break;
+    case GL_STACK_UNDERFLOW:
+      error = "STACK_UNDERFLOW";
+      break;
+    case GL_OUT_OF_MEMORY:
+      error = "OUT_OF_MEMORY";
+      break;
+    case GL_INVALID_FRAMEBUFFER_OPERATION:
+      error = "INVALID_FRAMEBUFFER_OPERATION";
+      break;
+    }
+    std::cout << error << " | " << file << " (" << line << ")" << std::endl;
+  }
+  return errorCode;
+}
+#define glCheckError() glCheckError_(__FILE__, __LINE__)
 
 int main()
 {
