@@ -16,4 +16,4 @@ endif()
 
 set(stb_INCLUDE ${stb_image_SOURCE_DIR})
 
-message(STATUS "${Green} STB Should Be Downloaded ${ColourReset}")
+message(STATUS "STB Should Be Downloaded")
